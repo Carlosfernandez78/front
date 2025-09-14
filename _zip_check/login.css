@@ -1,0 +1,76 @@
+:root{
+  --page-bg:#0f172a;
+  --card-bg:#0b1220;
+  --text:#e5e7eb;
+  --muted:#9ca3af;
+  --primary:#22c55e;
+  --primary-600:#16a34a;
+  --ring:#22c55e33;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji;
+  background:radial-gradient(1200px 600px at 80% -20%, #22c55e22, transparent 60%),
+             radial-gradient(900px 500px at -10% 120%, #60a5fa1f, transparent 60%),
+             var(--page-bg);
+  color:var(--text);
+}
+
+.page{min-height:100%;display:grid;place-items:center;padding:24px}
+
+.card{
+  width:100%;
+  max-width:420px;
+  background:linear-gradient(180deg, var(--card-bg), var(--card-bg)) padding-box,
+             linear-gradient(135deg, #22c55e, #60a5fa) border-box;
+  border:1px solid transparent;
+  border-radius:16px;
+  box-shadow:0 10px 30px #00000066;
+  overflow:hidden;
+}
+
+.card__header{padding:24px 24px 0}
+.card__title{margin:0 0 4px;font-size:1.5rem;font-weight:700}
+.card__subtitle{margin:0;color:var(--muted)}
+
+.form{padding:24px;display:grid;gap:16px}
+.form__field{display:grid;gap:8px}
+.form__label{font-size:.95rem;color:var(--muted)}
+.form__input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  background:var(--card-bg);
+  border:1px solid #1f2937;
+  color:var(--text);
+  outline:none;
+}
+.form__input:focus{border-color:var(--primary);box-shadow:0 0 0 4px var(--ring)}
+
+.form__row{display:flex;justify-content:space-between;align-items:center}
+.checkbox{display:inline-flex;align-items:center;gap:8px;color:var(--muted);cursor:pointer}
+
+.button{
+  width:100%;
+  padding:12px 16px;
+  border-radius:12px;
+  border:none;
+  color:#0b1220;
+  font-weight:700;
+  background:linear-gradient(135deg, var(--primary), #34d399);
+  cursor:pointer;
+}
+.button:hover{filter:brightness(1.05)}
+.button:active{transform:translateY(1px)}
+
+.card__footer{padding:0 24px 24px;color:var(--muted)}
+.link{color:#86efac;text-decoration:none}
+.link:hover{text-decoration:underline}
+
+@media (max-width:420px){.card{border-radius:12px}}
+
+
+

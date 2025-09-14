@@ -1,0 +1,14 @@
+﻿C:\Users\carfe\Desktop\front\_zip_check4\captures
+C:\Users\carfe\Desktop\front\_zip_check4\login.css
+C:\Users\carfe\Desktop\front\_zip_check4\login.html
+C:\Users\carfe\Desktop\front\_zip_check4\README.md
+C:\Users\carfe\Desktop\front\_zip_check4\reserva.css
+C:\Users\carfe\Desktop\front\_zip_check4\reserva.html
+C:\Users\carfe\Desktop\front\_zip_check4\captures\login-alerta.png
+C:\Users\carfe\Desktop\front\_zip_check4\captures\mobile-login.png
+C:\Users\carfe\Desktop\front\_zip_check4\captures\mobile-reserva-cta.png
+C:\Users\carfe\Desktop\front\_zip_check4\captures\README.md
+C:\Users\carfe\Desktop\front\_zip_check4\captures\reserva-fixed-cta.png
+C:\Users\carfe\Desktop\front\_zip_check4\captures\reserva-inicial-badge.png
+C:\Users\carfe\Desktop\front\_zip_check4\captures\reserva-scroll-navbar.png
+C:\Users\carfe\Desktop\front\_zip_check4\captures\reserva-sticky-form.png
