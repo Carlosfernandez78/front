@@ -1,0 +1,37 @@
+name: Create GitHub Release v0.2.0
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract release notes for v0.2.0
+        run: |
+          awk '/^## \[v0\.2\.0\]/{flag=1; next} /^## /{flag=0} flag' CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "No se encontraron notas para v0.2.0 en CHANGELOG.md" >&2
+            exit 1
+          fi
+
+      - name: Create or update GitHub Release v0.2.0
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.2.0
+          name: v0.2.0
+          body_path: RELEASE_NOTES.md
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+
