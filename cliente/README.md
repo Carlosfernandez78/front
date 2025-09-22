@@ -1,6 +1,6 @@
-# Cliente — React + Vite
+# Cliente — React + Vite (SPA de Alquiler)
 
-Proyecto inicializado con Vite (React, JavaScript) para el trabajo integrador. Cumple el enunciado de la actividad: crear proyecto con `npm create vite@latest`, eliminar `index.css` y `App.css` y sus imports, y generar la estructura base `styles`, `components` y `pages` con archivos placeholder.
+Aplicación de página única que migra los prototipos HTML/CSS a React. Incluye catálogo, detalle con formulario de reserva, persistencia en `localStorage`, listado de reservas, ruteo y tema claro/oscuro.
 
 ## Requisitos previos
 - Node.js 18+ y npm
@@ -10,12 +10,12 @@ Proyecto inicializado con Vite (React, JavaScript) para el trabajo integrador. C
 npm install
 npm run dev
 ```
-Abrí `http://localhost:5173/` en el navegador.
+Abrí `http://localhost:5173/`.
 
 ## Scripts útiles
 - `npm run dev`: servidor de desarrollo (Vite)
 - `npm run build`: build de producción
-- `npm run preview`: previsualizar el build localmente
+- `npm run preview`: previsualización local del build
 
 ## Estructura del proyecto
 ```
@@ -23,18 +23,35 @@ cliente/
   src/
     components/
       Navbar.jsx
+      SvgSuv2022.jsx
     pages/
       Home.jsx
       Login.jsx
+      Reserva.jsx
+      Reservations.jsx
+      About.jsx
+      NotFound.jsx
     styles/
       styles.css
     App.jsx
     main.jsx
+     data/
+       vehicles.js
 ```
 
-## Notas de la actividad
-- Se eliminaron `src/index.css` y `src/App.css` y sus referencias en `main.jsx` y `App.jsx`.
-- Los componentes `Home.jsx`, `Login.jsx` y `Navbar.jsx` están como placeholders para continuar la migración de pantallas.
+## Funcionalidades
+- Catálogo con cards en `Home.jsx` usando datos de `data/vehicles.js`.
+- Detalle y formulario en `Reserva.jsx` con cálculo de días, validación y total.
+- Persistencia de reservas en `localStorage` y listado en `Reservations.jsx`.
+- Ruteo declarado en `App.jsx` (`/`, `/login`, `/reserva`, `/reserva/:vehicleId`, `/reservas`, `/about`).
+- Tema claro/oscuro con preferencia guardada en `localStorage` (ver `main.jsx` y botón "Tema" en `Navbar.jsx`).
+
+## Assets
+- Imágenes en `public/images/` (incluye `suv-2022.jpg`, `suv-2022.svg`, `bg.svg`, `pattern.svg`).
+
+## Notas
+- Para vehículos remotos, se configura `onError` con un fallback embebido o local.
+- Los estilos unificados reemplazan los de los prototipos (`login.css`/`reserva.css`).
 
 ## Próximos pasos (sugeridos)
 - Importar los estilos globales en `main.jsx`:

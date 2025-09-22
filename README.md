@@ -1,58 +1,72 @@
-# Alquiler de Vehículos — Actualización de Estilos y Bootstrap 5.3
+# Alquiler de Vehículos — HTML/CSS + React/Vite
 
-## Descripción
-Proyecto con dos pantallas: `login.html` y `reserva.html`. Se actualizaron estilos para demostrar propiedades de posicionamiento (relative, absolute, fixed, sticky), uso de `display` (flex y grid) e implementación de componentes de Bootstrap 5.3.
+Este repositorio contiene dos partes complementarias:
 
-Los HTML incluyen comentarios in-line señalando explícitamente dónde se aplicó cada técnica y componente.
+- HTML/CSS (raíz): prototipos estáticos con demostración de posicionamiento (relative, absolute, fixed, sticky), `display` (flex y grid) y componentes estilo Bootstrap (replicados en CSS propio).
+- `cliente/` (React + Vite): migración a SPA con ruteo, catálogo, detalle de vehículo con formulario de reserva, persistencia en `localStorage`, listado de reservas y tema claro/oscuro.
+
+## Novedades (2da parte — SPA en React)
+
+- Migración a React + Vite en `cliente/` con ruteo mediante `react-router-dom`.
+- Página `Home` con catálogo de vehículos (datos en `cliente/src/data/vehicles.js`).
+- Página `Reserva` con cálculo de días, validación de fechas, total y guardado en `localStorage`.
+- Página `Mis reservas` para listar, borrar y limpiar reservas guardadas localmente.
+- Navbar con enlaces y botón de tema; inicialización del tema en `cliente/src/main.jsx` según preferencia del sistema/usuario.
+- Estilos unificados en `cliente/src/styles/styles.css` (migrados y ampliados), fondo con imagen y patrón superpuesto.
+
+Rutas principales en la SPA:
+
+- `/` catálogo (Home)
+- `/login` formulario base (placeholder)
+- `/reserva` y `/reserva/:vehicleId` detalle + formulario
+- `/reservas` listado desde `localStorage`
+- `/about` información del proyecto
+- `*` 404 (NotFound)
+
+Cómo ejecutar la SPA:
+
+1. `cd cliente`
+2. `npm install`
+3. `npm run dev` → abrir `http://localhost:5173/`
 
 ## Tecnologías
 - HTML5, CSS3
-- Bootstrap 5.3 (CDN)
+- React 19, React Router 7, Vite 7
 
-## Cambios realizados
+## Demostración HTML/CSS (1ra parte)
 
-### 1) Bootstrap 5.3 por CDN
-- Agregado en `<head>` de `login.html` y `reserva.html`.
-- Se añadió también el bundle JS de Bootstrap antes de `</body>`.
+### Posicionamiento (position)
+- `relative`: en `reserva.html` sobre `.vehicle__media` para posicionar elementos hijos.
+- `absolute`: insignia "Oferta" superpuesta a la imagen.
+- `fixed`: CTA "Reservar" fijo en la esquina inferior derecha.
+- `sticky`: formulario de reserva pegajoso (`.booking`) con `top: 16px`.
 
-### 2) Componentes de Bootstrap
-- `login.html`: Alerta informativa (dismissible) para destacar el uso del correo institucional.
-- Ambas páginas: Navbar de Bootstrap con `sticky-top` (siempre visible al hacer scroll).
-- `reserva.html`: Botón CTA "Reservar" usando clases de Bootstrap (`btn btn-success`).
-
-### 3) Posicionamiento (position)
-- `relative`: En `reserva.html`, contenedor de la imagen (`.vehicle__media position-relative`) para posicionar elementos hijos.
-- `absolute`: Badge "Oferta" (`.badge position-absolute`) superpuesta a la imagen.
-- `fixed`: Botón CTA "Reservar" (`.position-fixed bottom-0 end-0`) fijo en esquina inferior derecha.
-- `sticky`: Formulario de reserva (`.booking`) con `position: sticky; top: 16px;` (ver `reserva.css`).
-
-### 4) Display (flex y grid)
+### Display (flex y grid)
 - `login.html`:
-  - `.page`: `display: grid;` (centra el contenido vertical y horizontalmente).
-  - `.form__row`: `display: flex;` para alinear el checkbox y el enlace de recuperación.
+  - `.page`: `display: grid;` (centrado vertical/horizontal).
+  - `.form__row`: `display: flex;`.
 - `reserva.html`:
-  - `.grid`: `display: grid;` con dos columnas (detalle del vehículo + formulario) y breakpoint responsive.
+  - `.grid`: `display: grid;` con dos columnas y breakpoint responsive.
 
-## Archivos relevantes
-- `login.html`
-  - CDN Bootstrap, navbar `sticky-top`, alerta Bootstrap, `display: grid` en `.page`, `display: flex` en `.form__row`.
-- `reserva.html`
-  - CDN Bootstrap, navbar `sticky-top`, layout principal con CSS Grid, badge absoluta sobre la imagen, botón CTA `fixed`.
-- `reserva.css`
-  - Regla de `.booking` con `position: sticky; top: 16px;` y ajustes visuales.
+## Archivos relevantes (raíz)
+- `login.html`: alerta informativa, layout con grid/flex.
+- `reserva.html`: grid principal, badge absoluta, CTA fijo.
+- `reserva.css`: estilos y `position: sticky` para `.booking`.
 
-## Cómo probar
+## Archivos relevantes (SPA `cliente/`)
+- `src/pages/Home.jsx`, `src/pages/Reserva.jsx`, `src/pages/Reservations.jsx`, `src/pages/About.jsx`, `src/pages/NotFound.jsx`
+- `src/components/Navbar.jsx`, `src/components/SvgSuv2022.jsx`
+- `src/data/vehicles.js`, `src/styles/styles.css`, `src/main.jsx`, `src/App.jsx`
+
+## Cómo probar (HTML/CSS)
 1. Abrir `login.html` y `reserva.html` en el navegador.
-2. Hacer scroll en `reserva.html` para ver:
-   - La navbar siempre visible (sticky-top).
-   - El formulario de reserva permaneciendo visible (sticky) en la columna derecha.
-   - El botón "Reservar" fijo en la esquina inferior derecha.
-3. En `login.html`, cerrar la alerta Bootstrap con la "X" para verificar el JS del bundle.
+2. Verificar navbar visible, formulario sticky y CTA fijo al hacer scroll.
 
 ## Notas
-- Se agregaron comentarios en los HTML indicando cada uso de `position`, `display` y componentes Bootstrap para facilitar la corrección.
+- Los HTML incluyen comentarios para ubicar `position`/`display` y componentes.
+- En la SPA, las reservas se almacenan en `localStorage` bajo la clave `reservations`.
 
-## Capturas sugeridas (mocks para la entrega)
+## Capturas sugeridas
 Inserta imágenes en una carpeta `captures/` y referencia aquí. Sugerencias:
 
 1. Login — alerta visible
@@ -79,7 +93,7 @@ Cómo tomarlas:
 - Abrí cada HTML en el navegador, ajusta el zoom si es necesario y usa la herramienta de captura del sistema.
 - Guarda los archivos con los nombres sugeridos y súbelos junto con el proyecto.
 
-### Capturas en vista móvil (opcional recomendado)
+### Capturas en vista móvil (opcional)
 Suma estas capturas desde el emulador de dispositivos del navegador:
 
 6. Login — móvil (alerta y layout centrado)
