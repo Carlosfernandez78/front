@@ -5,6 +5,28 @@ Keep a Changelog (formato) y Semantic Versioning.
 
 ## [Unreleased]
 
+## [v0.3.0] - 2025-09-27
+
+### Added
+- Control de acceso completo:
+  - `Login.jsx` con `useState`, `useNavigate`, fetch a `/auth/login`, manejo de errores y almacenamiento de token en `localStorage`.
+  - Ruta `/register` reutilizando `Login` con prop `accion="registrar"` y envío a `/auth/register`.
+  - Toggle de visibilidad de contraseña con ícono de ojo.
+- `Navbar.jsx` reactivo:
+  - Verifica token con `useEffect` y eventos `storage`/`authChanged`.
+  - Muestra “Login/Registrarse” sin sesión y “Mis reservas/Desconectar/Reserva” con sesión.
+- Playwright E2E:
+  - Prueba Home y flujo Login/Reserva (2/2 OK).
+- Documentación de entrega en `ENTREGA.md`.
+
+### Changed
+- Configuración de Playwright para permitir `E2E_BASE_URL` y adaptación a puertos dinámicos de Vite.
+- Actualizaciones menores de selectors en tests (`#catalog-title`).
+
+### Backend
+- `auth.register`: hashing con `bcrypt`, `auth.login`: JWT con `JWT_SECRET`.
+- Script `scripts/reset_password.js` para restablecer contraseñas.
+
 ## [v0.2.0] - 2025-09-22
 
 ### Added
