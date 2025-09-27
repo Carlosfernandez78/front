@@ -14,6 +14,56 @@ Este repositorio contiene dos partes complementarias:
 - Navbar con enlaces y botón de tema; inicialización del tema en `cliente/src/main.jsx` según preferencia del sistema/usuario.
 - Estilos unificados en `cliente/src/styles/styles.css` (migrados y ampliados), fondo con imagen y patrón superpuesto.
 
+## Integración con Backend (Node/Express + MySQL)
+
+La SPA ahora se conecta a un backend (por defecto en `http://localhost:3000`).
+
+- Variables de entorno (frontend): crear `cliente/.env`
+  - `VITE_API_URL=http://localhost:3000`
+- Proxy de desarrollo: `cliente/vite.config.js` reescribe `/api` → backend.
+- Cliente HTTP reusable: `cliente/src/lib/api.js`
+  - Anexa `Authorization: Bearer <token>` si existe.
+  - Propaga mensajes de error del backend (`message`/`mensaje`).
+  - Auto-logout si el backend responde `401` (elimina token y notifica `authChanged`).
+
+### Flujo de autenticación
+- Login (`/auth/login`) espera `{ email, contrasena }` y devuelve `{ token }`.
+- Registro rápido desde Login (`/auth/register`): crea y luego inicia sesión.
+- Tras login se redirige a `Mis reservas`, y la navbar muestra “Desconectar”.
+- Rutas protegidas: `Home`, `Reserva`, `Mis reservas` requieren sesión; `Home` es público pero sin la opción de reservar si no hay sesión; `About`/`Login` siempre accesibles.
+
+### Reserva
+- Envío a backend (`POST /reservas`) con forma `{ usuario_id, vehiculo_id, fecha_inicio, fecha_fin, estado }`.
+- Fallback local (si no hay servidor): guarda en `localStorage`.
+- Limpieza del formulario tras reservar (fechas/valores), hints al pasar el mouse, íconos de fecha/hora accesibles.
+- Sucursales: Buenos Aires / Entre Ríos / Misiones (retiro y devolución), persistidas en `localStorage`.
+- `vehiculo_id` se infiere consultando `/vehiculos` (o se toma de `?vehiculoId=` si viene en la URL).
+- Bloqueo si no hay sesión (deshabilita botón y redirige a `Login`).
+
+### Mis reservas
+- Carga desde backend (`GET /reservas`) con fallback a `localStorage`.
+- Borrado individual (`DELETE /reservas/:id`) y “Limpiar todas” (intenta borrar en servidor y limpia local).
+- Completa `pricePerDay` y `total` si el backend no los provee (en base a catálogo local/vehículo).
+- Filtros por rango de fechas (desde/hasta), badge de estado (pendiente/confirmada/cancelada).
+- Tabla responsiva en móviles (layout tipo “cards”).
+
+### Pasos de ejecución (resumen)
+1) Backend (en otro proyecto):
+   - Variables: `PORT=3000, DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, JWT_SECRET`.
+   - Arrancar: `npm run dev` y verificar `GET /api/test/db`.
+2) Frontend (este repo):
+   - `cd cliente && npm install`
+   - Crear `cliente/.env` con `VITE_API_URL`
+   - `npm run dev` → `http://localhost:5173/`
+
+### Endpoints utilizados
+- `POST /auth/login` → `{ token }`
+- `POST /auth/register`
+- `GET /auth/perfil` (opcional para obtener `usuario_id` real)
+- `GET /vehiculos` → `{ data: Vehiculo[] }`
+- `GET /reservas` → `Reserva[]`
+- `POST /reservas`, `DELETE /reservas/:id`
+
 Rutas principales en la SPA:
 
 - `/` catálogo (Home)

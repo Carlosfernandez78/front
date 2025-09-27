@@ -3,6 +3,8 @@ import { vehicles as sampleVehicles } from '../data/vehicles.js'
 import SvgSuv2022 from '../components/SvgSuv2022.jsx'
 
 export default function Home() {
+  let logged = false
+  try { logged = !!localStorage.getItem('authToken') } catch { logged = false }
   return (
     <main className="page">
       <section className="catalog" aria-labelledby="catalog-title">
@@ -54,7 +56,11 @@ export default function Home() {
                   <div className="cardx__footer">
                     <span className="cardx__price">{vehicle.pricePerDay.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })}</span>
                     <span className="cardx__note">/ día</span>
-                    <Link className="cardx__cta" to={`/reserva/${vehicle.id}`}>Reservar</Link>
+                    {logged ? (
+                      <Link className="cardx__cta" to={`/reserva/${vehicle.id}`}>Reservar</Link>
+                    ) : (
+                      <Link className="cardx__cta" to={`/login`}>Ingresar para reservar</Link>
+                    )}
                   </div>
                 </div>
               </article>

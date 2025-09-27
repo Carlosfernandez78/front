@@ -1,0 +1,23 @@
+# Node
+node_modules/
+npm-debug.log*
+
+# Build outputs
+dist/
+.next/
+
+# Env
+.env
+.env.*
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Test artifacts
+test-results/
+playwright-report/
+trace.zip
+
+

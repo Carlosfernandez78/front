@@ -1,13 +1,51 @@
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { get, post } from '../lib/api.js'
 import { useParams, Link } from 'react-router-dom'
 import { getVehicleById } from '../data/vehicles.js'
 import SvgSuv2022 from '../components/SvgSuv2022.jsx'
 
 export default function Reserva() {
+  const navigate = useNavigate()
   const { vehicleId } = useParams()
   const vehicle = getVehicleById(vehicleId) || getVehicleById('sedan-2023')
+  // Intento mapear a un vehiculo_id numérico si viene como query (?vehiculoId=123)
+  const vehiculoIdFromQuery = (() => {
+    try {
+      const params = new URLSearchParams(window.location.search)
+      const v = params.get('vehiculoId')
+      return v ? parseInt(v, 10) : null
+    } catch {
+      return null
+    }
+  })()
   const [pickupDate, setPickupDate] = useState('')
   const [returnDate, setReturnDate] = useState('')
+  const [pickupBranch, setPickupBranch] = useState(() => {
+    try { return localStorage.getItem('pickupBranch') || '' } catch { return '' }
+  })
+  const [dropoffBranch, setDropoffBranch] = useState(() => {
+    try { return localStorage.getItem('dropoffBranch') || 'same' } catch { return 'same' }
+  })
+  const formRef = useRef(null)
+  const hasToken = useMemo(() => {
+    try { return !!localStorage.getItem('authToken') } catch { return false }
+  }, [])
+  const [vehiculoIdBackend, setVehiculoIdBackend] = useState(null)
+  useEffect(() => {
+    ;(async () => {
+      try {
+        const res = await get('/vehiculos')
+        const items = Array.isArray(res?.data) ? res.data : []
+        const name = (vehicle?.name || '').toLowerCase()
+        const match = items.find((it) => {
+          const s = `${it.marca} ${it.modelo}`.toLowerCase()
+          return name.includes('suv') ? s.includes('rav') || s.includes('cr-v') : name.includes('pickup') ? s.includes('pickup') || s.includes('4x4') : s.includes('yaris') || s.includes('civic') || s.includes('gol')
+        }) || items[0]
+        if (match && match.id) setVehiculoIdBackend(match.id)
+      } catch {}
+    })()
+  }, [vehicle?.id])
 
   const formatCurrency = (value) => value.toLocaleString('es-AR', { style: 'currency', currency: 'ARS' })
   const parseYMD = (value) => {
@@ -79,9 +117,23 @@ export default function Reserva() {
           <form
             className="booking"
             aria-labelledby="reserva-titulo"
+            ref={formRef}
             onSubmit={(e) => {
               e.preventDefault()
               if (!isValidDates) return
+              // Revalidar autenticación al enviar
+              try {
+                const tk = localStorage.getItem('authToken')
+                if (!tk) {
+                  alert('Debes iniciar sesión para reservar.')
+                  navigate('/login')
+                  return
+                }
+              } catch {
+                alert('Debes iniciar sesión para reservar.')
+                navigate('/login')
+                return
+              }
               const reservation = {
                 vehicleId: vehicle.id,
                 vehicleName: vehicle.name,
@@ -92,88 +144,138 @@ export default function Reserva() {
                 total,
                 createdAt: new Date().toISOString(),
               }
-              const key = 'reservations'
-              const existing = JSON.parse(localStorage.getItem(key) || '[]')
-              existing.push(reservation)
-              localStorage.setItem(key, JSON.stringify(existing))
-              alert('Reserva guardada correctamente.')
+              ;(async () => {
+                try {
+                  // Forma esperada por backend
+                  const body = {
+                    usuario_id: 1, // TODO: si hay endpoint /auth/perfil podemos obtener el id real
+                    vehiculo_id: vehiculoIdFromQuery || vehiculoIdBackend || 1,
+                    fecha_inicio: pickupDate,
+                    fecha_fin: returnDate,
+                    estado: 'pendiente',
+                  }
+                  await post('/reservas', body)
+                  alert('Reserva enviada correctamente.')
+                  setPickupDate('')
+                  setReturnDate('')
+                  try { formRef.current && formRef.current.reset() } catch {}
+                } catch (err) {
+                  const key = 'reservations'
+                  const existing = JSON.parse(localStorage.getItem(key) || '[]')
+                  existing.push(reservation)
+                  localStorage.setItem(key, JSON.stringify(existing))
+                  alert('Reserva guardada localmente (sin conexión con el servidor).')
+                  setPickupDate('')
+                  setReturnDate('')
+                  try { formRef.current && formRef.current.reset() } catch {}
+                }
+              })()
             }}
           >
             <h2 id="reserva-titulo" className="booking__title">Datos de la reserva</h2>
+            {!hasToken && (
+              <div className="alert alert--info" role="alert" style={{ marginBottom: '8px' }}>
+                Inicia sesión para poder confirmar una reserva.
+              </div>
+            )}
 
             <div className="form__field">
               <label htmlFor="pickup-location" className="form__label">Sucursal de retiro</label>
-              <select id="pickup-location" className="form__input" required>
+              <div className="hover-wrap">
+                <select id="pickup-location" className="form__input" required value={pickupBranch} onChange={(e)=>{ setPickupBranch(e.target.value); try{localStorage.setItem('pickupBranch', e.target.value)}catch{}}}>
                 <option value="" disabled>Selecciona una sucursal</option>
-                <option value="centro">Buenos Aires - Centro</option>
-                <option value="eze">Aeropuerto Ezeiza (EZE)</option>
-                <option value="mdz">Mendoza - Ciudad</option>
-              </select>
+                <option value="bsas">Buenos Aires</option>
+                <option value="er">Entre Ríos</option>
+                <option value="mis">Misiones</option>
+                </select>
+                <div className="hover-hint"><strong>Tip:</strong> pasá el mouse para ver las opciones disponibles y elegir tu sucursal de retiro.</div>
+              </div>
             </div>
 
             <div className="form__row">
               <div className="form__field">
                 <label htmlFor="pickup-date" className="form__label">Fecha de retiro</label>
-                <input
-                  id="pickup-date"
-                  type="date"
-                  className="form__input"
-                  value={pickupDate}
-                  onChange={(e) => {
-                    const next = e.target.value
-                    setPickupDate(next)
-                    if (returnDate && next && parseYMD(returnDate) <= parseYMD(next)) {
-                      setReturnDate('')
-                    }
-                  }}
-                  required
-                />
+                <div className="hover-wrap input-wrap">
+                  <input
+                    id="pickup-date"
+                    type="date"
+                    className="form__input"
+                    value={pickupDate}
+                    onChange={(e) => {
+                      const next = e.target.value
+                      setPickupDate(next)
+                      if (returnDate && next && parseYMD(returnDate) <= parseYMD(next)) {
+                        setReturnDate('')
+                      }
+                    }}
+                    required
+                  />
+                  <div className="hover-hint"><strong>Tip:</strong> elegí la fecha de retiro. La devolución debe ser posterior.</div>
+                </div>
               </div>
               <div className="form__field">
                 <label htmlFor="return-date" className="form__label">Fecha de devolución</label>
-                <input
-                  id="return-date"
-                  type="date"
-                  className="form__input"
-                  value={returnDate}
-                  min={pickupDate || undefined}
-                  onChange={(e) => setReturnDate(e.target.value)}
-                  required
-                />
+                <div className="hover-wrap input-wrap">
+                  <input
+                    id="return-date"
+                    type="date"
+                    className="form__input"
+                    value={returnDate}
+                    min={pickupDate || undefined}
+                    onChange={(e) => setReturnDate(e.target.value)}
+                    required
+                  />
+                  <div className="hover-hint"><strong>Tip:</strong> seleccioná una fecha posterior al retiro.</div>
+                </div>
               </div>
             </div>
 
             <div className="form__row">
               <div className="form__field">
                 <label htmlFor="pickup-time" className="form__label">Hora de retiro</label>
-                <input id="pickup-time" type="time" className="form__input" defaultValue="10:00" required />
+                <div className="hover-wrap input-wrap">
+                  <input id="pickup-time" type="time" className="form__input" defaultValue="10:00" required />
+                  <div className="hover-hint"><strong>Tip:</strong> ayuda a coordinar la disponibilidad del vehículo.</div>
+                </div>
               </div>
               <div className="form__field">
                 <label htmlFor="return-time" className="form__label">Hora de devolución</label>
-                <input id="return-time" type="time" className="form__input" defaultValue="10:00" required />
+                <div className="hover-wrap input-wrap">
+                  <input id="return-time" type="time" className="form__input" defaultValue="10:00" required />
+                  <div className="hover-hint"><strong>Tip:</strong> evitá recargos devolviendo a tiempo.</div>
+                </div>
               </div>
             </div>
 
             <div className="form__field">
               <label htmlFor="dropoff-location" className="form__label">Devolver en otra sucursal</label>
-              <select id="dropoff-location" className="form__input">
+              <div className="hover-wrap">
+                <select id="dropoff-location" className="form__input" value={dropoffBranch} onChange={(e)=>{ setDropoffBranch(e.target.value); try{localStorage.setItem('dropoffBranch', e.target.value)}catch{}}}>
                 <option value="same">Devolver en la misma sucursal</option>
-                <option value="centro">Buenos Aires - Centro</option>
-                <option value="eze">Aeropuerto Ezeiza (EZE)</option>
-                <option value="mdz">Mendoza - Ciudad</option>
-              </select>
+                <option value="bsas">Buenos Aires</option>
+                <option value="er">Entre Ríos</option>
+                <option value="mis">Misiones</option>
+                </select>
+                <div className="hover-hint"><strong>Tip:</strong> pasá el mouse para desplegar y seleccionar una sucursal distinta para la devolución.</div>
+              </div>
             </div>
 
-            <fieldset className="extras">
-              <legend className="extras__title">Extras opcionales</legend>
-              <label className="checkbox"><input type="checkbox" /> Sillita para bebé</label>
-              <label className="checkbox"><input type="checkbox" /> GPS</label>
-              <label className="checkbox"><input type="checkbox" /> Conductor adicional</label>
-            </fieldset>
+            <div className="hover-wrap">
+              <fieldset className="extras">
+                <legend className="extras__title">Extras opcionales</legend>
+                <label className="checkbox"><input type="checkbox" /> Sillita para bebé</label>
+                <label className="checkbox"><input type="checkbox" /> GPS</label>
+                <label className="checkbox"><input type="checkbox" /> Conductor adicional</label>
+              </fieldset>
+              <div className="hover-hint"><strong>Tip:</strong> seleccioná extras según tus necesidades; podés modificarlos luego.</div>
+            </div>
 
             <div className="form__field">
               <label htmlFor="age" className="form__label">Edad del conductor</label>
-              <input id="age" type="number" min="18" max="85" defaultValue="30" className="form__input" required />
+              <div className="hover-wrap">
+                <input id="age" type="number" min="18" max="85" defaultValue="30" className="form__input" required />
+                <div className="hover-hint"><strong>Tip:</strong> debe ser mayor de edad para poder alquilar.</div>
+              </div>
             </div>
 
             <div className="form__field" aria-live="polite">
@@ -196,7 +298,7 @@ export default function Reserva() {
               )}
             </div>
 
-            <button type="submit" className="button" disabled={!isValidDates}>Reservar ahora</button>
+            <button type="submit" className="button" disabled={!isValidDates || !hasToken}>Reservar ahora</button>
             <p className="booking__note">Al continuar aceptas los términos y condiciones del alquiler.</p>
           </form>
         </div>
