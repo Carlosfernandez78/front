@@ -146,6 +146,7 @@ export default function Reservations() {
                   <th>Precio/día</th>
                   <th>Total</th>
                   <th>Estado</th>
+                  <th>Código</th>
                   <th></th>
                 </tr>
               </thead>
@@ -193,6 +194,7 @@ export default function Reservations() {
                           fontWeight:700,fontSize:'.85rem'
                         }}>{estado}</span>
                       </td>
+                      <td data-label="Código" style={{ fontFamily: 'monospace' }}>{r.codigo || '—'}</td>
                       <td data-label="Acciones">
                         <button className="button" onClick={() => handleDelete(idx)} style={{ padding: '8px 10px' }}>
                           Borrar

@@ -25,6 +25,9 @@ export default function Login({ accion = 'ingresar' }) {
         const token = data?.token
         if (token) {
           localStorage.setItem('authToken', token)
+          if (data && data.rol) {
+            try { localStorage.setItem('authRole', data.rol) } catch {}
+          }
           try { window.dispatchEvent(new Event('authChanged')) } catch {}
         }
         navigate('/reservas', { replace: true })

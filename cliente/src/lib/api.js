@@ -36,6 +36,7 @@ async function apiFetch(path, options = {}) {
     if (response.status === 401) {
       try {
         localStorage.removeItem('authToken')
+        localStorage.removeItem('authRole')
         window.dispatchEvent(new Event('authChanged'))
       } catch {}
     }
