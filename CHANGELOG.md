@@ -5,6 +5,12 @@ Keep a Changelog (formato) y Semantic Versioning.
 
 ## [Unreleased]
 
+## [v0.3.1] - 2025-10-06
+
+### Changed
+- Publicación automática de releases con GitHub Actions al crear tags `v*`.
+- Adjunta capturas desde `captures/` en el release.
+
 ## [v0.3.0] - 2025-10-06
 
 ### Added
