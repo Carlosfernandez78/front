@@ -5,27 +5,28 @@ Keep a Changelog (formato) y Semantic Versioning.
 
 ## [Unreleased]
 
-## [v0.3.0] - 2025-09-27
+## [v0.3.0] - 2025-10-06
 
 ### Added
-- Control de acceso completo:
-  - `Login.jsx` con `useState`, `useNavigate`, fetch a `/auth/login`, manejo de errores y almacenamiento de token en `localStorage`.
-  - Ruta `/register` reutilizando `Login` con prop `accion="registrar"` y envío a `/auth/register`.
-  - Toggle de visibilidad de contraseña con ícono de ojo.
-- `Navbar.jsx` reactivo:
-  - Verifica token con `useEffect` y eventos `storage`/`authChanged`.
-  - Muestra “Login/Registrarse” sin sesión y “Mis reservas/Desconectar/Reserva” con sesión.
-- Playwright E2E:
-  - Prueba Home y flujo Login/Reserva (2/2 OK).
-- Documentación de entrega en `ENTREGA.md`.
+- Pagos simulados end-to-end:
+  - Backend: `/api/pagos/intent`, `/api/pagos/confirm` y uso de `payment_id` en `/api/reservas`.
+  - Front: selector de método (tarjeta/transferencia/efectivo), validaciones demo y flujo “Confirmar y pagar”.
+- Ticket con código y QR:
+  - Generación de `codigo` único en backend para cada reserva.
+  - Ticket muestra estado, días, total pagado, código y QR (solo si pagado) y botón imprimir.
+- Panel de administración estable:
+  - Guard declarativo con verificación de `/auth/perfil`.
+  - Vistas de métricas, usuarios y reservas (con estados vacíos).
+- Footer fijo al fondo con layout `minHeight: 100vh`.
+- Integración opcional Stripe Checkout (`/api/payments/checkout-session`) y dependencia `stripe`.
 
 ### Changed
-- Configuración de Playwright para permitir `E2E_BASE_URL` y adaptación a puertos dinámicos de Vite.
-- Actualizaciones menores de selectors en tests (`#catalog-title`).
+- Navbar con badge de rol y mayor espaciado.
+- `Reserva.jsx` reestructurado con paso de resumen previo a pago y snapshot de datos para impresión.
+- `Reservations.jsx` ahora muestra el `codigo` si existe.
 
-### Backend
-- `auth.register`: hashing con `bcrypt`, `auth.login`: JWT con `JWT_SECRET`.
-- Script `scripts/reset_password.js` para restablecer contraseñas.
+### Tech
+- Dependencias: `qrcode` para QR, `stripe` opcional.
 
 ## [v0.2.0] - 2025-09-22
 
